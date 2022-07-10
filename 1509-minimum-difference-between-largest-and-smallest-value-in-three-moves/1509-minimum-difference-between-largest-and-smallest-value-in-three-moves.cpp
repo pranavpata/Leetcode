@@ -1,28 +1,43 @@
 class Solution {
 public:
     int minDifference(vector<int>& nums) {
-        if (nums.size() <= 4)
-	        return 0;
-        sort(nums.begin(), nums.end());
-        // we can reduce the difference by 'removing' element at both ends.
-        // when we say 'remove', we actually mean: 
-        // 1. select nums[0] and change it to nums[1], or
-        // 2. select nums[n - 1] and change it to nums[n - 2].
-        // both case will reduce the difference between largest and smallest elements.
-
-        int n = nums.size();
-        int ret = INT_MAX;
-
-        // check if we remove i elements from left and remove j elements from right.
-        for (int i = 0; i <= 3; ++i)
-        {
-            for (int j = 0; i + j <= 3; ++j)
-            {
-                int d = nums[n - 1 - j] - nums[i];
-                ret = min(ret, d);
+        if (nums.size() <= 4) return 0;
+	    
+        priority_queue<int> maxHeap; //smallest 4 numbers
+        priority_queue<int, vector<int>, greater<int>> minHeap; //largest 4 numbers
+        
+        for(int num:nums) {
+            if (maxHeap.size() < 4) {
+                maxHeap.push(num);
+                minHeap.push(num);
+            }
+            else {
+                if (num > minHeap.top()) {
+                    minHeap.pop();
+                    minHeap.push(num);
+                }
+                if (num < maxHeap.top()) {
+                    maxHeap.pop();
+                    maxHeap.push(num);
+                }
             }
         }
-
-        return ret;
+        
+        vector<int> small;
+        for (int i = 0; i < 4; i++) {
+            small.push_back(maxHeap.top());
+            maxHeap.pop();
+        }
+        
+        int result = INT_MAX;
+        
+        int large;
+        for (int i = 0; i < 4; i++) {
+            large = minHeap.top();
+            minHeap.pop();
+            result = min(result, large - small[4 - i - 1]);
+        }
+        
+        return result;
     }
 };
